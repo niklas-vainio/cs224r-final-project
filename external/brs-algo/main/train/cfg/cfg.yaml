@@ -39,9 +39,9 @@ action_keys: ["mobile_base", "torso", "left_arm", "left_gripper", "right_arm", "
 action_key_dims:
   mobile_base: 3
   torso: 4
-  left_arm: 6
+  left_arm: 7 # Now 7dof for right arm
   left_gripper: 1
-  right_arm: 6
+  right_arm: 7 # Now 7dof for each arm
   right_gripper: 1
 
 # ------ module ------
