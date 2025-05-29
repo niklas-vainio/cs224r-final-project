@@ -1,0 +1,10 @@
+# @package _global_
+
+task_name: clean_house_after_a_wild_party
+pcd_downsample_points: 4096
+data_module:
+  pcd_x_range: [0.0, 2.0]
+  pcd_y_range: [-1.0, 1.0]
+  pcd_z_range: [-0.5, 1.6]
+  mobile_base_vel_action_min: [-0.3, -0.3, -0.4]
+  mobile_base_vel_action_max: [0.3, 0.3, 0.4]

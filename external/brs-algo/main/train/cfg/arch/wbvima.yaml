@@ -1,0 +1,73 @@
+# @package _global_
+
+run_name: "${optional_:${prefix}}\
+  ${arch_name}\
+  _${task_name}\
+  _To${num_latest_obs}\
+  _Ta${action_prediction_horizon}\
+  _b${bs}\
+  ${__optional:${suffix}}\
+  ${_optional:${postsuffix}}"
+
+arch_name: wbvima
+
+# ====== DP specific ======
+num_latest_obs: 2
+action_prediction_horizon: 8
+
+wd: 0.1
+
+# ------ module ------
+module:
+  _target_: brs_algo.learning.module.DiffusionModule
+  policy:
+    _target_: brs_algo.learning.policy.WBVIMAPolicy
+    prop_dim: 68 # 68 dimensional proprioception from simulator
+    prop_keys: ["TODO"]
+    num_latest_obs: ${num_latest_obs}
+    use_modality_type_tokens: false
+    prop_mlp_hidden_depth: 2
+    prop_mlp_hidden_dim: 256
+    pointnet_n_coordinates: 3
+    pointnet_n_color: 3
+    pointnet_hidden_depth: 2
+    pointnet_hidden_dim: 256
+    action_keys: ${action_keys}
+    action_key_dims: ${action_key_dims}
+    # ====== Transformer ======
+    xf_n_embd: 256
+    xf_n_layer: 2
+    xf_n_head: 8
+    xf_dropout_rate: 0.1
+    xf_use_geglu: true
+    # ====== Action Decoding ======
+    learnable_action_readout_token: false
+    action_dim: 23 # R1 pro has 23 dimensional action (3 base, 4 trunk, 7 each arm (x2), 2 grippers)
+    action_prediction_horizon: ${action_prediction_horizon}
+    diffusion_step_embed_dim: 128
+    unet_down_dims: [64,128]
+    unet_kernel_size: 5
+    unet_n_groups: 8
+    unet_cond_predict_scale: true
+    # ====== diffusion ======
+    noise_scheduler:
+      _target_: diffusers.schedulers.scheduling_ddim.DDIMScheduler
+      num_train_timesteps: 100
+      beta_start: 0.0001
+      beta_end: 0.02
+      # beta_schedule is important
+      # this is the best we found
+      beta_schedule: squaredcos_cap_v2
+      clip_sample: True
+      set_alpha_to_one: True
+      steps_offset: 0
+      prediction_type: epsilon # or sample
+    noise_scheduler_step_kwargs: null
+    num_denoise_steps_per_inference: 16
+  action_prediction_horizon: ${action_prediction_horizon}
+  loss_on_latest_obs_only: false
+
+data_module:
+  _target_: brs_algo.learning.data.ActionSeqChunkDataModule
+  obs_window_size: ${num_latest_obs}
+  action_prediction_horizon: ${action_prediction_horizon}

@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "brs_algo"
+dynamic = ["version"]
+dependencies = [
+    "numpy >= 1.26.4",
+    "torch >= 2.5.1",
+    "dm_tree >= 0.1.8",
+    "pytorch-lightning >= 2.3.0",
+    "pillow >= 11.0.0",
+    "h5py >= 3.12.1",
+    "hydra-core >= 1.3.2",
+    "diffusers >= 0.26.3",
+    "huggingface-hub == 0.24.6",
+    "einops >= 0.8.0",
+    "omegaconf >= 2.3.0",
+    "tqdm >= 4.67.1",
+    "transformers >= 4.42.4",
+    "tensorboard",
+    "rich",
+    "tabulate",
+    "numpy-quaternion"
+]
+requires-python = ">=3.11"
+authors = [
+  {name = "Yunfan Jiang", email = "yunfanj@cs.stanford.edu"},
+]
+maintainers = [
+  {name = "Yunfan Jiang", email = "yunfanj@cs.stanford.edu"},
+]
+description = "The algorithm repository for BEHAVIOR-Robot-Suite: Streamlining Real-World Whole-Body Manipulation for Everyday Household Activities"
+readme = "README.md"
+keywords = ["Robotics", "Machine Learning", "Whole-Body Manipulation", "Mobile Manipulation"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Researchers, Developers",
+    "Topic :: Scientific/Engineering :: Robotics",
+    "Programming Language :: Python :: 3.11",
+]
+
+[project.urls]
+Homepage = "https://behavior-robot-suite.github.io/"
+
+
+[tool.setuptools]
+packages = ["brs_algo"]
+[tool.setuptools.dynamic]
+version = {attr = "brs_algo.__version__"}
