@@ -253,12 +253,17 @@ class WBVIMAPolicy(BaseDiffusionPolicy):
             return_last_timestep_only=return_last_timestep_only,
         )  # (B, T_obs, T_act, A) or (B, T_act, A)
         return {
+            # Change to support 7dof
             "mobile_base": pred["mobile_base"],
             "torso": pred["torso"],
-            "left_arm": pred["arms"][..., :6],
-            "left_gripper": pred["arms"][..., 6:7],
-            "right_arm": pred["arms"][..., 7:13],
-            "right_gripper": pred["arms"][..., 13:14],
+            "left_arm": pred["arms"][..., :7],
+            "left_gripper": pred["arms"][..., 7:8],
+            # "left_arm": pred["arms"][..., :6],
+            # "left_gripper": pred["arms"][..., 6:7],
+            "right_arm": pred["arms"][..., 8:15],
+            "right_gripper": pred["arms"][..., 15:],
+            # "right_arm": pred["arms"][..., 7:13],
+            # "right_gripper": pred["arms"][..., 13:14],
         }
 
     @torch.no_grad()
