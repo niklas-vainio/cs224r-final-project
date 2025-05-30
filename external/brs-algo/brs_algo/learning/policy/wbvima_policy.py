@@ -96,7 +96,8 @@ class WBVIMAPolicy(BaseDiffusionPolicy):
         )
         self.action_decoder = WholeBodyUNetDiffusionHead(
             whole_body_decoding_order=["mobile_base", "torso", "arms"],
-            action_dim_per_part={"mobile_base": 3, "torso": 4, "arms": 14},
+            # Change arms dim to 16 for r1 pro
+            action_dim_per_part={"mobile_base": 3, "torso": 4, "arms": 16},
             obs_dim=xf_n_embd,
             action_horizon=action_prediction_horizon,
             diffusion_step_embed_dim=diffusion_step_embed_dim,

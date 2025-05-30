@@ -23,7 +23,7 @@ module:
   policy:
     _target_: brs_algo.learning.policy.WBVIMAPolicy
     prop_dim: 68 # 68 dimensional proprioception from simulator
-    prop_keys: ["proprio/all"]
+    prop_keys: ["proprio/all"] # Use a single key since OG already featurizes proprio data for us
     num_latest_obs: ${num_latest_obs}
     use_modality_type_tokens: false
     prop_mlp_hidden_depth: 2

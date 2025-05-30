@@ -21,6 +21,8 @@ def view_hdf5_file(filename: str, attr=None, field = None):
             else:
                 print(hf[field])
                 print(f"Attributes: {hf[field].attrs.keys()}")
+                print("Min: ", np.min(hf[field], axis=0))
+                print("Max: ", np.max(hf[field], axis=0))
         else:
             hf.visititems(print_item)
         

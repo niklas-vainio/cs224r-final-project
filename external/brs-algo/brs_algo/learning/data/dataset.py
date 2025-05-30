@@ -11,14 +11,30 @@ import brs_algo.utils as U
 
 
 class SeqChunkDataset(Dataset):
-    torso_joint_high = np.array([1.8326, 2.5307, 1.8326, 3.0543])
+    # Joint limits for R1
+    # torso_joint_high = np.array([1.8326, 2.5307, 1.8326, 3.0543])
+    # torso_joint_low = np.array([-1.1345, -2.7925, -2.0944, -3.0543])
+    # left_arm_joint_high = np.array([2.8798, 3.2289, 0, 2.8798, 1.6581, 2.8798])
+    # left_arm_joint_low = np.array([-2.8798, 0, -3.3161, -2.8798, -1.6581, -2.8798])
+    # right_arm_joint_high = np.array([2.8798, 3.2289, 0, 2.8798, 1.6581, 2.8798])
+    # right_arm_joint_low = np.array([-2.8798, 0, -3.3161, -2.8798, -1.6581, -2.8798])
+    # gripper_strike_low = np.array([0])
+    # gripper_strike_high = np.array([100])
+
+    # Joint limits for R1 pro: can be exported from sim with robot.joint_lower_limits
+    # and robot.joint_upper_limits (refer to indices in robots.joints)
+    torso_joint_high = np.array([1.8326, 2.5307, 1.5708, 3.0543])
     torso_joint_low = np.array([-1.1345, -2.7925, -2.0944, -3.0543])
-    left_arm_joint_high = np.array([2.8798, 3.2289, 0, 2.8798, 1.6581, 2.8798])
-    left_arm_joint_low = np.array([-2.8798, 0, -3.3161, -2.8798, -1.6581, -2.8798])
-    right_arm_joint_high = np.array([2.8798, 3.2289, 0, 2.8798, 1.6581, 2.8798])
-    right_arm_joint_low = np.array([-2.8798, 0, -3.3161, -2.8798, -1.6581, -2.8798])
-    gripper_strike_low = np.array([0])
-    gripper_strike_high = np.array([100])
+
+    left_arm_joint_high = np.array([1.3090, 3.1416, 2.3562, 0.3491, 2.3562, 1.0472, 1.5708])
+    left_arm_joint_low = np.array([-4.4506, -0.1745, -2.3562, -1.7453, -2.3562, -1.0472, -1.5708])
+
+    right_arm_joint_high = np.array([1.3090, 0.1745, 2.3562, 0.3491, 2.3562, 1.0472, 1.5708])
+    right_arm_joint_low = np.array([-4.4506, -3.1416, -2.3562, -1.7453, -2.3562, -1.0472, -1.5708])
+
+    # Grippers unused
+    # gripper_strike_low = np.array([0])
+    # gripper_strike_high = np.array([100])
 
     def __init__(
         self,
@@ -197,12 +213,15 @@ class SeqChunkDataset(Dataset):
                 "xyz": downsampled_xyz,
                 "rgb": downsampled_rgb,
             },
-            "qpos": data["qpos"],
-            "link_poses": data["link_poses"],
-            "odom": data["odom"],
-            "actions": data["actions"],
-            "pad_mask": mask,
-            "multi_view_cameras": data["multi_view_cameras"],
+            "proprio": data["proprio"],
+
+            # Ignore original data format:
+            # "qpos": data["qpos"],
+            # "link_poses": data["link_poses"],
+            # "odom": data["odom"],
+            # "actions": data["actions"],
+            # "pad_mask": mask,
+            # "multi_view_cameras": data["multi_view_cameras"],
         }
         return data
 
@@ -250,17 +269,26 @@ class SeqChunkDataset(Dataset):
             / (self.torso_joint_high - self.torso_joint_low)
             - 1
         )
-        # because action/left/right_gripper is gripper stroke (in cm), convert to binary (1 for close, 0 for open)
-        left_gripper_action = (demo["action/left_gripper"][:] <= 50).astype(np.float32)[
-            ..., np.newaxis
-        ]  # (T, 1)
-        left_gripper_action = 2 * left_gripper_action - 1
-        right_gripper_action = (demo["action/right_gripper"][:] <= 50).astype(
-            np.float32
-        )[
-            ..., np.newaxis
-        ]  # (T, 1)
-        right_gripper_action = 2 * right_gripper_action - 1
+
+        # Gripper sim values already range from -1.0 (closed) to 1.0 (open)
+        left_gripper_action = demo["action/left_gripper"][:].astype(np.float32)[..., np.newaxis] # (T, 1)
+        right_gripper_action = demo["action/right_gripper"][:].astype(np.float32)[..., np.newaxis] # (T, 1)
+
+        #     ..., np.newaxis
+        # ]  # (T, 1)
+
+        # # because action/left/right_gripper is gripper stroke (in cm), convert to binary (1 for close, 0 for open)
+        # left_gripper_action = (demo["action/left_gripper"][:] <= 50).astype(np.float32)[
+        #     ..., np.newaxis
+        # ]  # (T, 1)
+        # left_gripper_action = 2 * left_gripper_action - 1
+        # right_gripper_action = (demo["action/right_gripper"][:] <= 50).astype(
+        #     np.float32
+        # )[
+        #     ..., np.newaxis
+        # ]  # (T, 1)
+        # right_gripper_action = 2 * right_gripper_action - 1
+
         action_dict = {
             "mobile_base": mobile_base_vel_action.astype(np.float32),
             "left_arm": left_arm_action.astype(np.float32),
@@ -271,74 +299,85 @@ class SeqChunkDataset(Dataset):
         }
 
         # process observations
-        # qpos
-        left_arm_qpos = demo["obs/joint_state/left_arm/joint_position"][:, :6].astype(
-            np.float32
-        )  # (T, 6)
-        left_arm_qpos = (
-            2
-            * (left_arm_qpos - self.left_arm_joint_low)
-            / (self.left_arm_joint_high - self.left_arm_joint_low)
-            - 1
-        )
-        right_arm_qpos = demo["obs/joint_state/right_arm/joint_position"][:, :6].astype(
-            np.float32
-        )  # (T, 6)
-        right_arm_qpos = (
-            2
-            * (right_arm_qpos - self.right_arm_joint_low)
-            / (self.right_arm_joint_high - self.right_arm_joint_low)
-            - 1
-        )
-        torso_qpos = demo["obs/joint_state/torso/joint_position"][:].astype(
-            np.float32
-        )  # (T, 4)
-        torso_qpos = (
-            2
-            * (torso_qpos - self.torso_joint_low)
-            / (self.torso_joint_high - self.torso_joint_low)
-            - 1
-        )
-        left_gripper_qpos = demo["obs/gripper_state/left_gripper/gripper_position"][
-            :
-        ].astype(np.float32)[..., np.newaxis]
-        # rectify gripper state to +1 for close, -1 for open
-        left_gripper_qpos = (left_gripper_qpos <= 50).astype(np.float32) * 2 - 1
-        right_gripper_qpos = demo["obs/gripper_state/right_gripper/gripper_position"][
-            :
-        ].astype(np.float32)[..., np.newaxis]
-        right_gripper_qpos = (right_gripper_qpos <= 50).astype(np.float32) * 2 - 1
-        # odometry base velocity
-        odom_base_vel = demo["obs/odom/base_velocity"][:].astype(np.float32)  # (T, 3)
-        odom_base_vel = (
-            2
-            * (odom_base_vel - self._mobile_base_vel_action_min)
-            / (self._mobile_base_vel_action_max - self._mobile_base_vel_action_min)
-            - 1
-        )
-        odom_base_vel = np.clip(odom_base_vel, -1, 1)
 
+        # Ignore all the custom code for extracting proprioception observations: simply feed
+        # in the vector directly from sim since the values have relatively small magnitude anyway 
         obs_dict = {
-            "qpos": {
-                "torso": torso_qpos.astype(np.float32),  # (T, 4)
-                "left_arm": left_arm_qpos.astype(np.float32),  # (T, 6)
-                "right_arm": right_arm_qpos.astype(np.float32),  # (T, 6)
-                "left_gripper": left_gripper_qpos.astype(np.float32),  # (T, 1)
-                "right_gripper": right_gripper_qpos.astype(np.float32),  # (T, 1)
-            },
-            "link_poses": {
-                "left_eef": demo["obs/link_poses/left_eef"][:].astype(
-                    np.float32
-                ),  # (T, 7)
-                "right_eef": demo["obs/link_poses/right_eef"][:].astype(
-                    np.float32
-                ),  # (T, 7)
-                "head": demo["obs/link_poses/head"][:].astype(np.float32),  # (T, 7)
-            },
-            "odom": {
-                "base_velocity": odom_base_vel.astype(np.float32),  # (T, 3)
-            },
+            "proprio": {
+                # Ignore final observation so batch sizes line up
+                "all": demo["obs/proprio/all"][:-1, :].astype(np.float32) # (T, 68)
+            }
         }
+
+        # # qpos
+        # left_arm_qpos = demo["obs/joint_state/left_arm/joint_position"][:, :6].astype(
+        #     np.float32
+        # )  # (T, 6)
+        # left_arm_qpos = (
+        #     2
+        #     * (left_arm_qpos - self.left_arm_joint_low)
+        #     / (self.left_arm_joint_high - self.left_arm_joint_low)
+        #     - 1
+        # )
+        # right_arm_qpos = demo["obs/joint_state/right_arm/joint_position"][:, :6].astype(
+        #     np.float32
+        # )  # (T, 6)
+        # right_arm_qpos = (
+        #     2
+        #     * (right_arm_qpos - self.right_arm_joint_low)
+        #     / (self.right_arm_joint_high - self.right_arm_joint_low)
+        #     - 1
+        # )
+        # torso_qpos = demo["obs/joint_state/torso/joint_position"][:].astype(
+        #     np.float32
+        # )  # (T, 4)
+        # torso_qpos = (
+        #     2
+        #     * (torso_qpos - self.torso_joint_low)
+        #     / (self.torso_joint_high - self.torso_joint_low)
+        #     - 1
+        # )
+        # left_gripper_qpos = demo["obs/gripper_state/left_gripper/gripper_position"][
+        #     :
+        # ].astype(np.float32)[..., np.newaxis]
+        # # rectify gripper state to +1 for close, -1 for open
+        # left_gripper_qpos = (left_gripper_qpos <= 50).astype(np.float32) * 2 - 1
+        # right_gripper_qpos = demo["obs/gripper_state/right_gripper/gripper_position"][
+        #     :
+        # ].astype(np.float32)[..., np.newaxis]
+        # right_gripper_qpos = (right_gripper_qpos <= 50).astype(np.float32) * 2 - 1
+        # # odometry base velocity
+        # odom_base_vel = demo["obs/odom/base_velocity"][:].astype(np.float32)  # (T, 3)
+        # odom_base_vel = (
+        #     2
+        #     * (odom_base_vel - self._mobile_base_vel_action_min)
+        #     / (self._mobile_base_vel_action_max - self._mobile_base_vel_action_min)
+        #     - 1
+        # )
+        # odom_base_vel = np.clip(odom_base_vel, -1, 1)
+
+        # obs_dict = {
+        #     "qpos": {
+        #         "torso": torso_qpos.astype(np.float32),  # (T, 4)
+        #         "left_arm": left_arm_qpos.astype(np.float32),  # (T, 6)
+        #         "right_arm": right_arm_qpos.astype(np.float32),  # (T, 6)
+        #         "left_gripper": left_gripper_qpos.astype(np.float32),  # (T, 1)
+        #         "right_gripper": right_gripper_qpos.astype(np.float32),  # (T, 1)
+        #     },
+        #     "link_poses": {
+        #         "left_eef": demo["obs/link_poses/left_eef"][:].astype(
+        #             np.float32
+        #         ),  # (T, 7)
+        #         "right_eef": demo["obs/link_poses/right_eef"][:].astype(
+        #             np.float32
+        #         ),  # (T, 7)
+        #         "head": demo["obs/link_poses/head"][:].astype(np.float32),  # (T, 7)
+        #     },
+        #     "odom": {
+        #         "base_velocity": odom_base_vel.astype(np.float32),  # (T, 3)
+        #     },
+        # }
+
         if self._load_visual_obs_in_memory:
             # point cloud
             pcd_xyz = demo["obs/point_cloud/fused/xyz"][:].astype(
@@ -352,13 +391,16 @@ class SeqChunkDataset(Dataset):
             )
             visual_obs_dict = {
                 "pointcloud": {
-                    "xyz": pcd_xyz.astype(np.float32),  # (T, N, 3)
+                    # Ignore final observation
+                    "xyz": pcd_xyz[:-1, ...].astype(np.float32),  # (T, N, 3)
                     "rgb": (
-                        demo["obs/point_cloud/fused/rgb"][:].astype(np.uint8) / 255.0
+                        # Ignore final observation
+                        demo["obs/point_cloud/fused/rgb"][:-1, ...].astype(np.uint8) / 255.0
                     ).astype(
                         np.float32
                     ),  # (T, N, 3)
-                    "mask": demo["obs/point_cloud/fused/padding_mask"][:].astype(
+                    # Ignore final observation
+                    "mask": demo["obs/point_cloud/fused/padding_mask"][:-1, ...].astype(
                         bool
                     ),  # (T, N)
                 },
@@ -627,9 +669,13 @@ class ActionSeqChunkDataset(SeqChunkDataset):
                 "xyz": downsampled_xyz,
                 "rgb": downsampled_rgb,
             },
-            "qpos": data["qpos"],
-            "odom": data["odom"],
-            "link_poses": data["link_poses"],
+            # Replace with single proprio observation
+            "proprio": data["proprio"],
+            
+            # "qpos": data["qpos"],
+            # "odom": data["odom"],
+            # "link_poses": data["link_poses"],
+
             "action_chunks": data["action_chunks"],
             "pad_mask": data["action_chunk_masks"] & mask[:, None],
             "multi_view_cameras": data["multi_view_cameras"],
