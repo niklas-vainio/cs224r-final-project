@@ -9,32 +9,31 @@ from wbvima_rollout_env import WBVIMARolloutEnv
 class Args:
     task_name: str = "picking_up_trash"
     max_ep_len: int = 5000
-    # policy_path: str
+    num_episodes: int = 1
     config_path: str = "env_config.json"
     scene_path: str = "scene_config.json"
+    policy_checkpoint: str
+
 
 def main(args: Args):
-    # Launch OmniGibson environment
+    # Launch OmniGibson environment and run rollout
     env = WBVIMARolloutEnv(
-        args.config_path,
-        args.scene_path
+        max_ep_len=args.max_ep_len,
+        config_file_path=args.config_path,
+        scene_file_path=args.scene_path,
+        policy_checkpoint_path=args.policy_checkpoint
     )
 
-    breakpoint()
+    # Run rollouts
+    for i in range(args.num_episodes):
+        print(f"[main] Beginning rollout number {i+1}/{args.num_episodes}!")
+        env.rollout_episode(
+            reset_env=(i != 0),
+            log_file=f"eval_log_ep{i}.json",
+        )
+        print("\n\n\n\n\n")
 
-    # done = False
-    # i = 0
-
-    # # Get initial observation
-
-    # while i < args.max_ep_len and not done: 
-    #     # Get policy action
-    #     # Step environment
-
-    #     i += 1
-
-    # # Output data
-    # pass
+    print("All done!")
 
 
 if __name__ == "__main__":
