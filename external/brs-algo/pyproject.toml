@@ -24,7 +24,7 @@ dependencies = [
     "tabulate",
     "numpy-quaternion"
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 authors = [
   {name = "Yunfan Jiang", email = "yunfanj@cs.stanford.edu"},
 ]

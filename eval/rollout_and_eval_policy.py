@@ -3,16 +3,17 @@
 # 06/03/2025
 
 import tyro
+from dataclasses import dataclass
 from wbvima_rollout_env import WBVIMARolloutEnv
 
 @dataclass
 class Args:
+    policy_checkpoint: str
     task_name: str = "picking_up_trash"
     max_ep_len: int = 5000
     num_episodes: int = 1
     config_path: str = "env_config.json"
     scene_path: str = "scene_config.json"
-    policy_checkpoint: str
 
 
 def main(args: Args):

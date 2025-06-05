@@ -40,7 +40,7 @@ class WBVIMAPolicyWrapper():
         self.action_idx = 0
 
         # Wrap internal policy - this should exactly match training config
-        self._policy = WBVIMAPolicy(
+        policy = WBVIMAPolicy(
             prop_dim=68,
             prop_keys=[
                 "proprio/all",
@@ -75,7 +75,7 @@ class WBVIMAPolicyWrapper():
             xf_dropout_rate=0.1,
             xf_use_geglu=True,
             learnable_action_readout_token=False,
-            action_dim=21,
+            action_dim=23,
             action_prediction_horizon=self.ACTION_PREDICTION_HORIZON,
             diffusion_step_embed_dim=128,
             unet_down_dims=[64, 128],
@@ -101,8 +101,8 @@ class WBVIMAPolicyWrapper():
             strip_prefix="policy.",
             strict=True,
         )
-        policy = policy.to(DEVICE)
-        policy.eval()
+        self._policy = policy.to(DEVICE)
+        self._policy.eval()
 
     def reset(self):
         """
@@ -133,8 +133,8 @@ class WBVIMAPolicyWrapper():
             }  # dict of (T_A, ...)
             self.action_idx = 0
 
+        action = U.any_slice(self.action_traj_pred, np.s_[self.action_idx])
         self.action_idx += 1
-        action = U.any_slice(action_traj_pred, np.s_[self.action_idx])
 
         # Un-normalize the action so it arrives in the format expected by the sim
         return self._unnormalize_action(action)
@@ -210,7 +210,7 @@ class WBVIMAPolicyWrapper():
         right_gripper = action["right_gripper"]
 
         # Squeeze into torch tensor, so this is compatible with the sim
-        return th.concat((
+        return np.concatenate((
             mobile_base_vel_cmd,
             torso,
             left_arm,

@@ -1,0 +1,258 @@
+{
+    "env": {
+        "action_frequency": 30,
+        "rendering_frequency": 30,
+        "physics_frequency": 120,
+        "device": null,
+        "automatic_reset": false,
+        "flatten_action_space": false,
+        "flatten_obs_space": false,
+        "initial_pos_z_offset": 0.1,
+        "external_sensors": [
+            {
+                "sensor_type": "VisionSensor",
+                "name": "external_sensor0",
+                "relative_prim_path": "/controllable__r1pro__robot_r1/base_link/external_sensor0",
+                "modalities": [],
+                "sensor_kwargs": {
+                    "viewport_name": "Viewport",
+                    "image_height": 1080,
+                    "image_width": 1080
+                },
+                "position": [
+                    -0.4,
+                    0,
+                    2.0
+                ],
+                "orientation": [
+                    0.2706,
+                    -0.2706,
+                    -0.6533,
+                    0.6533
+                ],
+                "pose_frame": "parent",
+                "include_in_obs": false
+            },
+            {
+                "sensor_type": "VisionSensor",
+                "name": "external_sensor1",
+                "relative_prim_path": "/controllable__r1pro__robot_r1/base_link/external_sensor1",
+                "modalities": [],
+                "sensor_kwargs": {
+                    "viewport_name": "Viewport",
+                    "image_height": 1080,
+                    "image_width": 1080
+                },
+                "position": [
+                    -0.2,
+                    0.6,
+                    2.0
+                ],
+                "orientation": [
+                    -0.193,
+                    0.4163,
+                    0.8062,
+                    -0.3734
+                ],
+                "pose_frame": "parent",
+                "include_in_obs": false
+            },
+            {
+                "sensor_type": "VisionSensor",
+                "name": "external_sensor2",
+                "relative_prim_path": "/controllable__r1pro__robot_r1/base_link/external_sensor2",
+                "modalities": [],
+                "sensor_kwargs": {
+                    "viewport_name": "Viewport",
+                    "image_height": 1080,
+                    "image_width": 1080
+                },
+                "position": [
+                    -0.2,
+                    -0.6,
+                    2.0
+                ],
+                "orientation": [
+                    0.4164,
+                    -0.1929,
+                    -0.3737,
+                    0.806
+                ],
+                "pose_frame": "parent",
+                "include_in_obs": false
+            }
+        ]
+    },
+    "render": {
+        "viewer_width": 1280,
+        "viewer_height": 720
+    },
+    "scene": {
+        "waypoint_resolution": 0.2,
+        "num_waypoints": 10,
+        "trav_map_resolution": 0.1,
+        "default_erosion_radius": 0.0,
+        "trav_map_with_objects": true,
+        "scene_instance": "house_double_floor_lower_task_picking_up_trash_0_0_template",
+        "scene_file": null,
+        "type": "InteractiveTraversableScene",
+        "scene_model": "house_double_floor_lower",
+        "load_room_types": null,
+        "load_room_instances": null,
+        "include_robots": false
+    },
+    "robots": [
+        {
+            "type": "R1Pro",
+            "name": "robot_r1",
+            "action_normalize": false,
+            "controller_config": {
+                "arm_left": {
+                    "name": "JointController",
+                    "motor_type": "position",
+                    "pos_kp": 150,
+                    "command_input_limits": null,
+                    "command_output_limits": null,
+                    "use_impedances": false,
+                    "use_delta_commands": false
+                },
+                "arm_right": {
+                    "name": "JointController",
+                    "motor_type": "position",
+                    "pos_kp": 150,
+                    "command_input_limits": null,
+                    "command_output_limits": null,
+                    "use_impedances": false,
+                    "use_delta_commands": false
+                },
+                "gripper_left": {
+                    "name": "MultiFingerGripperController",
+                    "mode": "smooth",
+                    "command_input_limits": "default",
+                    "command_output_limits": "default"
+                },
+                "gripper_right": {
+                    "name": "MultiFingerGripperController",
+                    "mode": "smooth",
+                    "command_input_limits": "default",
+                    "command_output_limits": "default"
+                },
+                "base": {
+                    "name": "HolonomicBaseJointController",
+                    "motor_type": "velocity",
+                    "vel_kp": 150,
+                    "command_input_limits": [
+                        [
+                            -1.0,
+                            -1.0,
+                            -1.0
+                        ],
+                        [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    ],
+                    "command_output_limits": [
+                        [
+                            -0.75,
+                            -0.75,
+                            -1.0
+                        ],
+                        [
+                            0.75,
+                            0.75,
+                            1.0
+                        ]
+                    ],
+                    "use_impedances": false
+                },
+                "trunk": {
+                    "name": "JointController",
+                    "motor_type": "position",
+                    "pos_kp": 150,
+                    "command_input_limits": null,
+                    "command_output_limits": null,
+                    "use_impedances": false,
+                    "use_delta_commands": false
+                },
+                "camera": {
+                    "name": "NullJointController"
+                }
+            },
+            "self_collisions": true,
+            "obs_modalities": [],
+            "position": [
+                7.649299621582031,
+                2.6182403564453125,
+                0.003772735595703125
+            ],
+            "orientation": [
+                -0.004941981751471758,
+                0.0010606860741972923,
+                -0.9575472474098206,
+                0.2882319688796997
+            ],
+            "grasping_mode": "assisted",
+            "sensor_config": {
+                "VisionSensor": {
+                    "sensor_kwargs": {
+                        "image_height": 1080,
+                        "image_width": 1080
+                    }
+                }
+            },
+            "reset_joint_pos": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.024999976158142,
+                -1.4500000476837158,
+                -0.4699999988079071,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.05000000074505806,
+                0.05000000074505806,
+                0.05000000074505806,
+                0.05000000074505806
+            ]
+        }
+    ],
+    "objects": [],
+    "task": {
+        "type": "BehaviorTask",
+        "activity_name": "picking_up_trash",
+        "activity_definition_id": 0,
+        "activity_instance_id": 0,
+        "predefined_problem": null,
+        "online_object_sampling": false,
+        "debug_object_sampling": false,
+        "highlight_task_relevant_objects": false,
+        "termination_config": {
+            "max_steps": 50000
+        },
+        "reward_config": {
+            "r_potential": 1.0
+        },
+        "include_obs": false
+    },
+    "wrapper": {
+        "type": null
+    }
+}
