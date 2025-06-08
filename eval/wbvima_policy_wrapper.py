@@ -152,7 +152,7 @@ class WBVIMAPolicyWrapper():
             / (self.pcd_xyz_max - self.pcd_xyz_min)
             - 1
         ).astype(np.float32)
-        pcd_rgb = (pcd["rgb"] / 255).astype(np.float32)
+        pcd_rgb = pcd["rgb"]
 
         obs_dict = {
             "pointcloud": {

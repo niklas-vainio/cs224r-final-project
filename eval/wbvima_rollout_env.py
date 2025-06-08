@@ -95,7 +95,7 @@ class WBVIMARolloutEnv():
 
         for i in range(self.max_ep_len):
             # Query policy
-            action = self.policy_wrapper.query_action(obs) * 100
+            action = self.policy_wrapper.query_action(obs)
             print(action)
             next_obs_raw, reward, terminated, truncated, info = self.env.step(action)
             obs = self._process_obs(next_obs_raw, info)
