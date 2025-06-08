@@ -201,8 +201,8 @@ class WBVIMARolloutEnv():
                 "all": obs_raw["robot_r1::proprio"].numpy()
             },
             "pointcloud": {
-                "xyz": fused_pcd[:, :3].astype(np.float32),
-                "rgb": fused_pcd[:, 3:].astype(np.float32)
+                "xyz": fused_pcd[:, 3:].astype(np.float32),
+                "rgb": fused_pcd[:, :3].astype(np.float32)
             }
         }
         return obs
