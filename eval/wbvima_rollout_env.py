@@ -1,6 +1,7 @@
 # Wrapper around omnigibson environment allowing connection to a policy
 
 import omnigibson as og
+import omnigibson.macros as gm
 import json
 import torch as th
 import numpy as np
@@ -36,6 +37,10 @@ class WBVIMARolloutEnv():
                  scene_file_path: str, 
                  policy_checkpoint_path: str
                  ):
+        
+        # Set og settings for maximum speed
+        gm.ENABLE_FLATCACHE = True
+        
         # Maintain running data dict
         self.log = {"data": []}
 
@@ -90,7 +95,7 @@ class WBVIMARolloutEnv():
 
         for i in range(self.max_ep_len):
             # Query policy
-            action = self.policy_wrapper.query_action(obs)
+            action = self.policy_wrapper.query_action(obs) * 100
             print(action)
             next_obs_raw, reward, terminated, truncated, info = self.env.step(action)
             obs = self._process_obs(next_obs_raw, info)

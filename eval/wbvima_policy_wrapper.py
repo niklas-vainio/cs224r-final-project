@@ -25,11 +25,11 @@ class WBVIMAPolicyWrapper():
     right_arm_joint_high = np.array([1.3090, 0.1745, 2.3562, 0.3491, 2.3562, 1.0472, 1.5708])
     right_arm_joint_low = np.array([-4.4506, -3.1416, -2.3562, -1.7453, -2.3562, -1.0472, -1.5708])
 
-    pcd_xyz_min = np.array([-5.0, -5.0, -5.0])
-    pcd_xyz_max = np.array([5.0, 5.0, 5.0])
+    pcd_xyz_min = np.array([-10.0, -10.0, -10.0])
+    pcd_xyz_max = np.array([10.0, 10.0, 10.0])
 
-    mobile_base_vel_action_min = np.array([-0.3, -0.3, -0.4])
-    mobile_base_vel_action_max = np.array([0.3, 0.3, 0.4])
+    mobile_base_vel_action_min = np.array([-1.0, -1.0, -1.0])
+    mobile_base_vel_action_max = np.array([1.0, 1.0, 1.0])
 
     NUM_LATEST_OBS = 2
     ACTION_PREDICTION_HORIZON = 8
