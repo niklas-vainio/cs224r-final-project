@@ -12,4 +12,6 @@ To merge all `*_replay.hdf5` files in a directory (and subdirectories), run the 
 python merge_and_post_process_data.py --dir {path_to_directory} --output {output_file}
 ```
 
-The other scripts can be used for viewing and debugging the contents of .hdf5 files.
+The other scripts can be used for viewing and debugging the contents of .hdf5 files as well as other utilities.
+
+**Refer to the installation instructions in `og-gello` to configure an environment with OmniGibson and its dependencies. Some scripts additionally require `open3d` and `fpsample` to be installed.**

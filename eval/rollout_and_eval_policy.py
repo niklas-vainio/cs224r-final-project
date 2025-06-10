@@ -12,8 +12,8 @@ class Args:
     task_name: str = "picking_up_trash"
     max_ep_len: int = 5000
     num_episodes: int = 1
-    config_path: str = "env_config.json"
-    scene_path: str = "scene_config.json"
+    config_path: str = "cfg/env_config.json"
+    scene_path: str = "cfg/scene_config.json"
 
 
 def main(args: Args):

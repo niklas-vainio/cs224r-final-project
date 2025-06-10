@@ -1,4 +1,5 @@
-# Visualization script to plot demo length
+# Simple visualization script to plot demo length
+
 import os
 import argparse
 import h5py

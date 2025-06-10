@@ -1,4 +1,4 @@
-# This file is a simple util file to see the contents of a .hdf5 file
+# This file is a simple utility to see the contents of a .hdf5 file
 
 import h5py
 import numpy as np
